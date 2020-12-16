@@ -18,7 +18,7 @@
 ### POINT TO SCRIPTS DIRECTORY ###
 shopt -s expand_aliases
 #You will need to point this as where your scripts are
-source /home1/05793/rdg758/scripts/alii.env
+source /home1/.../scripts/alii.env
 
 ### COLORS FOR FORMATTING ###
 RED='\033[0;31m'
