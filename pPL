@@ -126,7 +126,7 @@ if [ ${#numFiles[@]} -gt 1 ]; then
  			printf "\n***Job End***\n\n" >> ./${jobName}-si.txt
 			
 			unset existCoord
-        done
+        	done
 		
 ### IF ONE SUBJOB, PROCESS THE SUBJOB ###
 else
