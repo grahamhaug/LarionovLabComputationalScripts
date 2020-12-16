@@ -1,0 +1,138 @@
+#pRestart
+#v1.0
+#GCH 12/13/2020
+
+### DESCRIPTION ###
+#This script is used to restart large jobs that use a ReadWriteFile.rwf 
+#Useful for TD-DFT, Freq jobs with large basis sets, and anything that needs to go on skx queue
+#Use with 'pRestart yourjobname' with any/no extension
+
+### COLORS FOR FORMATTING ###
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+PURP='\033[1;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+### PRINT JOB HEADER ###
+echo ""
+echo "-----------------------------------------------------------------"
+echo "                            pRestart                             "
+echo "-----------------------------------------------------------------"
+
+### JOB NAMES ###
+#get the name of the job to be restarted regardless of whatever extension is typed
+fullInput=$(basename "$1")
+jobName="${fullInput%.*}"
+#See if there is a number attached to the job. 
+numIteration=$(echo "$jobName" | grep -o '[0-9]*$' | tr -d '[:space:]')
+#if no current #, this will be first restart; set numIteration=2 to append "2" to first file name
+if [ -z "$numIteration" ]; then
+	numIteration=2
+#if there is already a number, iterate that by one for the next restart, ex: filename2 => filename3 
+else 
+	numIteration=$((numIteration+1))
+fi 
+#if numbers at the end of job name, chop them off to return main job name
+noNum=$(echo "$jobName" | sed 's/[0-9]*$//' | tr -d '[:space:]')
+#build a new job name for the restart job
+restartJob="${noNum}${numIteration}"
+
+
+### CHECK FOR EXISTING JOB FILES ###
+#Give the user some feedback
+echo ""
+echo -e "${GREEN}RESTARTING:${NC} $jobName.com"
+echo -e "The next iteration will be: ${PURP}$numIteration${NC}"
+echo ""
+echo -e "${CYAN}Checking for requisite files...${NC}"
+#Check if restart.rwf file exists
+if [ ! -f "./${noNum}.rwf" ]; then
+	echo -e "$noNum.rwf\t${RED}Not Found${NC}"
+	echo -e "${RED}EXITING...${NC}"
+	exit 1
+else
+	echo -e "$noNum.rwf\t${GREEN}Found${NC}"
+fi
+#Check if input.com for currentJob.com exists
+if [ ! -f "./${jobName}.com" ]; then
+	echo -e "$jobName.com\t${RED}Not Found${NC}"
+	echo -e "${RED}EXITING...${NC}"
+	exit 1
+else
+	echo -e "$jobName.com\t${GREEN}Found${NC}"
+fi
+#Check if output.log for currentJob.log exists
+if [ ! -f "./${jobName}.log" ]; then
+	echo -e "$jobName.log\t${RED}Not Found${NC}"
+else
+	echo -e "$jobName.log\t${GREEN}Found${NC}"
+fi
+#check if sbatch script exists for current job
+if [ ! -f "./${jobName}" ]; then
+	echo -e "$jobName\t\t${RED}Not Found${NC}"
+	echo -e "${RED}EXITING...${NC}"
+	exit 1
+else
+	echo -e "$jobName\t${GREEN}Found${NC}"
+fi
+echo ""
+
+
+### MAKE NEW INPUTS FOR JOB TO RESTART ###
+function createInputs {
+#later: add a check/exit here in case the original files weren't found       
+	#Create a new slurm submit script from previous iteration's
+	echo "$jobName will be copied to $restartJob"
+        cp "./$jobName" "./$restartJob"
+	echo -e "New submission script $restartJob created."	
+	#replace the ${job}.log variable in the restart submission script so that the .log file continues where it left off
+	#sed -i "s/\${job}.log/${noNum}.log/" "./$restartJob"
+	#Create a new input.com job with "Restart" as the route name from previous iteration's
+        cp "./$jobName".com "$restartJob".com
+	echo -e "New G16 input file $restartJob.com created."
+	#Replace the old route section with "#p Restart" in the new job
+	newRoute="#p Restart"
+	sed -i "s/^#p.*$/${newRoute}/" "./$restartJob".com
+	#Replace the old job name with the new job name
+	sed -i "s/${jobName}/${restartJob}/" "./$restartJob".com
+	#change the .rwf file back to the original file name
+	sed -i "s/${restartJob}.rwf/${noNum}.rwf/" "./$restartJob".com
+}
+	
+echo -e "${CYAN}Creating new input files...${NC}"
+#if the new restart.com input doesn't exist, make the new input files 
+if [ ! -f "./${restartJob}.com" ]; then
+	createInputs
+#if the files already exist, warn and confirm overwrite with user
+elif [ -f "./${restartJob}" ]; then 
+	while true; do
+		userQuestion=$(echo -e "Files for next iteration found in current directory. ${RED}OVERWRITE?${NC} y/n ")
+		read -p "$userQuestion" yn
+		case $yn in
+			[Yy]* ) echo -e "${RED}OVERWRITING${NC} files for $restartJob..."
+				createInputs;
+				break;; 
+			[Nn]* ) echo -e "${RED}EXITING...${NC}";
+				exit;;
+		esac
+	done		
+fi
+
+
+### OPTIONAL IMMEDIATE JOB SUBMISSION WITH SLURM ###
+echo ""
+while true; do
+	slurmQuestion=$(echo -e "${CYAN}Submit ${GREEN}$restartJob ${CYAN}now?${NC} y/n ")
+	read -p "$slurmQuestion" yn
+	case $yn in
+		[Yy]* ) echo -e "${CYAN}Submitting $restartJob to TACC...${NC}"
+			sbatch "./$restartJob"                                
+			break;;
+		[Nn]* ) echo -e "${RED}EXITING...${NC}";
+			exit;;
+	esac
+done
+
+
+
