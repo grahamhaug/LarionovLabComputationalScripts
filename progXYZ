@@ -1,6 +1,7 @@
 #progXYZ
 #v1.0
 #GCH - 4/24/20
+Last Edited - 3/2/21
 
 #This will find the FINAL optimized geometry from an opt/freq job
 #it avoids geometries read from .chk reads early in a --link1-- optimization
@@ -27,7 +28,6 @@ endCount="${#endArray[@]]}"
 
 #pull out the geometry and format it in .xyz format - tab separated
 if [ "$startCount" -ne 0 ]; then
-	echo case 1
 	#pass the last start/stop lines - the last geometry match - to these variables for reading into awk
 	finalStart=${startArray[-1]}
 	finalEnd=${endArray[-1]}
