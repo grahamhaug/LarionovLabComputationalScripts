@@ -1,6 +1,8 @@
 # LarionovLabComputationalScripts
 Useful scripts for data processing/job management of Gaussian 16 input/output in a Linux environment.
 
+0. pLog, pTime, pSI, pDiag, and pXYZ should all be added; these are the main scripts.
+
 1. Copy these scripts to your home directory/scripts 
 
 2. Use "chmod 755 scriptname" to make each script executable
