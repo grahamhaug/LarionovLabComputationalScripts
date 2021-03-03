@@ -14,8 +14,8 @@ IFS=$'\n'
 lines=($(grep -i 'Elapsed time:' $1))
 count=0
 for x in ${lines[@]}; do
-    echo $x | sed -n "s/ Elapsed time:[ ]*/Job $count: /p"
-        count=$((count +1 ))
+	count=$((count +1 ))	
+	echo $x | sed -n "s/ Elapsed time:[ ]*/Job $count: /p"
 done
 
 #create bins to store pre-conversion times
