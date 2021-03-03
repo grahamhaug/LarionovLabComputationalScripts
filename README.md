@@ -1,5 +1,5 @@
 # LarionovLabComputationalScripts
-Useful scripts for data processing/job management of Gaussian 16/TACC jobs
+Useful scripts for data processing/job management of Gaussian 16 input/output in a Linux environment.
 
 1. Copy these scripts to your home directory/scripts 
 
