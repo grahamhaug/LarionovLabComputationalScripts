@@ -26,7 +26,7 @@ totSeconds=0
 
 #Loop through each grep'ed time (these are the real times, not CPU times..can change to CPU times by changing the grep'ed for phrase)
 while read -r line ; do
-        formTime=$(echo $line | sed -ne 's/^[^0-9]*\([0-9]\)[^0-9]*\([0-9]*\)[^0-9]*\([0-9]\)[^0-9]*\([0-9.]*\).*$/\1:\2:\3:\4 /p')
+        formTime=$(echo $line | sed -ne 's/^[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\)[^0-9]*\([0-9]*\)[^0-9]*\([0-9.]*\).*$/\1:\2:\3:\4 /p')
         days=$(echo $formTime | cut -f1 -d:)
         hours=$(echo $formTime | cut -f2 -d:)
         minutes=$(echo $formTime | cut -f3 -d:)
