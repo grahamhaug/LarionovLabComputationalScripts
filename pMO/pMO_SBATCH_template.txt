@@ -11,17 +11,11 @@
 #SBATCH -t ${HOURS}:00:00 # Run time (hh:mm:ss)
 
 # Select the allocation to use by uncommenting
+# you will need your own project allocation(s)
 ##SBATCH -A Mechanistic-Studies
 ##SBATCH -A Kinetics-of-selectiv
 ##SBATCH -A Computational-Analys
 ##SBATCH -A Excited-state-reacti
-#SBATCH -A SOCI-Xmers
-
-### POINT TO SCRIPTS DIRECTORY ###
-#source my aliuses/alii
-shopt -s expand_aliases
-#You will need to point this as where your scripts are
-source /home1/05793/rdg758/scripts/alii.env
 
 # Grab the Input job name; assign to "job"
 export job=$(echo $SLURM_JOB_NAME | sed 's/-mo//')
