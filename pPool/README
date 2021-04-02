@@ -1,0 +1,64 @@
+pPool is used for batch generation of G16 SBATCH scripts based on a common template: g16_SBATCH_template.txt
+
+It can create a single SBATCH script for one job:
+pPool example.com => option 1: "Single job"
+
+Or can create multiple inputs at once:
+1. Make the requisite input.com files (ex: job-conformer1.com .. job-conformer20.com)
+2. Ensure all of the .com's are in the current working directory 
+3. run pPool on the first one (ex: "pPool job-conformer1.com) and select option 2: "Range"
+4. Enter the range of jobs to be run (ex: 1-20 for 20 .com's) - this can also be noncontiguous (ie: I have jobs 1-20 set up but only want 1-5,8-10; set the range "1-5,8-10")
+
+pPool will then generate and sends SBATCH scripts/matching .com's to a common "queue directory" called "jobPool" from which they can be submitted manually
+ (or eventually autonomously, via qManager)
+
+*** INSTALL ***
+1. place "pPool" script in your home/scripts directory 
+
+2. chmod 755 pPool to make it executable 
+
+3. add an alias for pPool to *both* your .bashrc and your .env environment list:
+  alias pPool='/home1/your/home/scripts/pPool'
+  
+4. place "g16_SBATCH_template.txt" in your home/scripts directory
+
+5. an alias for "fairshare" needs to be added to .bashrc and your .env file (allocations and -u are specific to your situation):
+alias fairshare='sshare -a -A Mechanistic-Studies,Kinetics-of-selectiv,Computational-Analys,Excited-state-reacti,SOCI-Xmers -u rdg758'
+
+
+### CONFIGURATION ###
+1. in "g16_SBATCH_template.txt", make sure that the following points to your .env file (should be in home.../scripts or added to home../scripts:
+  #point to alias env file
+  source /home1/your/home/scripts/alii.env
+
+2. in "pPool", several things need to be pointed to your relevant directory locations:
+
+  a) Where to send the jobs after creation (you will submit from this directory) 
+  ### SET jobPool DIRECTORY LOCATION ###
+  jobPool=/work/your/working/directory/jobPool
+  
+  b) Source your .env file 
+  #You will need to point this as where your scripts are
+  source /home1/your/home/scripts/alii.env
+
+  c) You may have different queues to use (instead of TACC's "Normal" or "SKX-Normal") 
+  #In the function "makeSBATCH", edit the queue names:
+  queueOptions=("Normal" "SKX-Normal")
+   
+   d) You may have different allocations, in which case several changes are necessary:
+   #store the current allocations' fairshares
+   fsKinetics=$(fairshare | awk 'FNR == 8 {print $7}')
+   fsMech=$(fairshare | awk 'FNR == 10 {print $7}')
+   fsComp=$(fairshare | awk 'FNR == 4 {print $7}')
+   fsExcited=$(fairshare | awk 'FNR == 6 {print $7}')
+   fsSOCI=$(fairshare | awk 'FNR == 12 {print $7}')
+
+    #edit in your relevant allocations to this section of makeSBATCH function
+    case $REPLY in
+    1) #Kinetics-of-selectiv
+        export ALLOCATION='Kinetics-of-selectiv'
+        echo -e "${GREEN}Using allocation: ${CYAN}Kinetics-of-selectiv${NC}\n"
+       break;;
+
+    
+3. pPool should now be configured for use. 
