@@ -1,0 +1,85 @@
+#!/bin/bash
+### JOB PARAMETERS ###
+#SBATCH -N 1 -n 64 
+#normal or skx queue
+#SBATCH -p ${WHICHQ}
+#requested time
+#SBATCH -t ${HOURS}:${MINS}:00
+#I don't want these; too much clutter
+##SBATCH -e error.%j
+##SBATCH -o output.%j 
+
+#### AVAILABLE ALLOCATIONS ###
+#SBATCH -A ${ALLOCATION} 
+
+### POINT TO SCRIPTS DIRECTORY ###
+#source my aliuses/alii
+shopt -s expand_aliases
+#point to alias env file 
+source /home1/05793/rdg758/scripts/alii.env
+
+### SET UP $SCRATCH DIRECTORY ###
+export job=$SLURM_JOB_NAME
+#see if directory exists in $SCRATCH
+jobExists=/scratch/05793/rdg758/${job}_*
+if [[ -d "$jobExists" ]]; then 
+	cp $SLURM_SUBMIT_DIR/${job}.com $jobExists/
+	cd $jobExists
+else
+	tdir=$(mktemp -d $SCRATCH/${job}_$SLURM_JOBID-XXXX)
+	#copy relevant input/maintenance files to $SCRATCH
+	cp $SLURM_SUBMIT_DIR/${job}.com $tdir/
+	cp $SLURM_SUBMIT_DIR/${job}.chk $tdir/
+	cp $SLURM_SUBMIT_DIR/${job} $tdir/
+	#check for existing .rwf; cp if true
+	if [[ -f "${job}.rwf" ]]; then
+        cp $SLURM_SUBMIT_DIR/${job}.rwf $tdir/
+	fi
+	cd $tdir
+fi
+
+
+### RUN G16 JOB IN $SCRATCH ###
+module load gaussian
+echo "job started on $(date)"
+g16 <${job}.com> ${job}.log
+echo "job finished on $(date)"
+
+
+### CHECK FOR JOB COMPLETION; RUN pLOG IF TRUE###
+count=$(grep -c 'Normal termination' ${job}.log)
+if [[ "$count" -ge 1 ]]; then
+        pLog ${job}.log
+fi
+
+### COPY FILES BACK TO $WORK/SUBMIT DIRECTORY ###
+cp $tdir/${job}.com ${RETURNDIR}
+cp $tdir/${job}.rwf ${RETURNDIR}
+cp $tdir/${job} ${RETURNDIR}
+
+#Backup existing .log(s) in submit directory if found
+if [[ -f "${RETURNDIR}"/"${job}.log" ]]; then
+        mv ${RETURNDIR}/${job}.log ${RETURNDIR}/${job}.log.bak
+        cp $tdir/${job}.log ${RETURNDIR}
+else
+        cp $tdir/${job}.log ${RETURNDIR}
+fi
+
+#for complete jobs, send back pLog output
+#*to do*
+#can do more nuanced diagnostics of job (ie: check for errors, im freq(s)/restart needed, etc)
+cp $tdir/${job}-out.txt ${RETURNDIR}
+cp $tdir/${job}-si.txt ${RETURNDIR}
+cp $tdir/${job}.xyz ${RETURNDIR}
+
+
+
+### CLEAN $tdir FROM $SCRATCH ###
+#check if $tdir is set
+if [[ -n "$tdir" ]] && [[ -d "$tdir" ]]; then
+        rm -rf "$tdir"
+fi
+
+
+
+
