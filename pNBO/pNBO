@@ -1,0 +1,159 @@
+#pNBO
+#v1.0
+#Last edited: 3/19/2021
+#GCH - 3/15/2021
+
+#Extracts Natural Population Analysis data from example.nbo files 
+#Reports natural charge and total electron count for molecule
+#Optionally separate the molecule into user-defined fragments
+#Prints fragment NC, fragment #electrons, and total %contribution of fragment to total electron population 
+
+### COLORS FOR FORMATTING ###
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+PURP='\033[1;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+### PRINT JOB HEADER ###
+echo ""
+echo "-----------------------------------------------------------------"
+echo "                              pNBO                               "
+echo "-----------------------------------------------------------------"
+
+#Function to parse user-specified range for a fragment (ex: a ligand)
+function cleanRange {
+	#Split on commas/spaces first; this chunks down into mini-ranges
+	#likely fails for sequential delimiters
+        #ex: "1-3,5 9-10"
+        IFS=', ' read -a ranges <<< "$*"
+        for range in "${ranges[@]}"; do
+		IFS=- read start end <<< "$range"
+                [ -z "$start" ] && continue
+                [ -z "$end" ] && end=$start
+                for (( i=start ; i <= end ; i++ )); do
+			echo "$i"
+		done
+	done
+}
+
+#snag the jobname
+dataName=$(basename "$1" .nbo)
+echo -e "\nNBO file ID: ${CYAN}$dataName.nbo${NC}"
+
+#capture the Summary of Natural Population block into a variable
+rawNPA=$(awk '/Summary of Natural Population Analysis:/,/* Total */ {print}' $dataName.nbo)
+#echo "$rawNPA"
+
+#capture the atom list (remove headers)
+atomList=$(echo "$rawNPA" | awk '/^ --/{flag=1; next} /^ ==/{flag=0} flag {printf "%5s %15s %15s %15s \n", $1,$2,$3,$7}')
+
+#count the number of atoms contained in the molecule
+atomCount=$(echo -n "$atomList" | grep -c '^')
+echo -e "${CYAN}$dataName${NC} ${GREEN}contains ${NC}$atomCount ${GREEN}atoms:${NC}"
+
+#print the output Header and the formatted data for molecule
+printf "\n%2sAtom %10sIndex %10sNC %9sTotal e-"
+printf "\n------------------------------------------------------" 
+printf "\n$atomList"
+
+#Natural Charge is column $3
+totalNC=$(echo "$atomList" | awk '{sum+=$3;} END{print sum;}' )
+echo -e "\n\n${GREEN}Molecular Natural Charge = ${NC}$totalNC"
+
+#Contribution to total electron pupulation is column $7
+totalElectrons=$(echo "$atomList" | awk '{sum+=$4;} END{print sum;}')
+echo -e "${GREEN}Molecular Electrons = ${NC}$totalElectrons\n"
+
+
+### Perform fragment decomposition, if needed
+while true; do 
+fragQuestion=$(echo -e "${CYAN}Perform fragment analysis?${NC} y/n ")
+                read -ep "$fragQuestion" yn
+                case $yn in
+                        [Yy]* ) 
+				#Get a fragment from the user
+				userFrag=$(echo -e "\nSpecify fragment by atom indices (ex: 1-3,5,9-11). \n${CYAN}Enter range: ${NC}")
+				read -ep "$userFrag" frag
+				
+				#Verify user entered some numbers
+				#match on numbers and (optionally) a comma, ex: "1,2,3" or "10"
+				#reNum='[0-9]'
+				#match on ranges of numbers ex: "1-5"
+				#reRange='[0-9]+ *- *[0-9]+'
+			
+				#search user input for above regex and save matches in a variable
+				#found=$(echo $frag | grep -E -w -o -e $reNum -e $reRange)
+				#if [ -z "$found"]; then
+					#if nothing, return error
+				#	echo -e "${RED}Error: ${NC}Enter a number or range" >&2; exit 1
+				#fi
+			
+				#trim whitespace from the two variables
+				#var1=$(echo $frag | sed -e 's/^[[:space:]]*//')
+				#var2=$(echo $found | sed -e 's/^[[:space:]]*//')
+			
+				#compare two vars; if !match => $frag contained other junk => prompt for new input
+				#if ![[ $var1 ~= $var2 ]]; then
+				#	echo -e "${RED}Error: ${NC}Enter a number or range" >&2; exit 1
+                                #fi
+	
+				#remove delimiters from user's entry
+				fragment=($(cleanRange $frag))
+
+				#make sure the user-defined fragment is in ascending order
+				IFS=$'\n' sortedFrag=($(sort -n <<< "${fragment[*]}"))
+				unset IFS
+				
+				#chunk $atomList output down into user-defined fragment
+				declare -a fragArray
+				for index in "${sortedFrag[@]}"; do
+        				IFS=$'\n'
+				        capturedRow=($(printf "$atomList" | awk -v i=$index '$2==i {print $0}'))
+				        fragArray+=($capturedRow)
+				done
+
+				#sanity check the number of atoms in the defined fragment
+				fragAtomCount="${#fragArray[@]}"
+				echo -e "\n${GREEN}Fragment ${NC}($frag)${GREEN} contains ${NC}$fragAtomCount ${GREEN}atoms:${NC}\n"
+				printf "%2sAtom %10sIndex %10sNC %9sTotal e-"
+				printf "\n------------------------------------------------------\n"
+
+				#init vars for fragment counts
+				fragNC=0
+				fragElec=0
+
+
+				#print the current fragment array
+				for i in "${fragArray[@]}"; do
+				        #print the data corresponding to captured atom#
+					echo $i
+
+					#Get the current atom natural charge (column 3)
+					currentNC=$(echo $i | awk '{sum += $3} {print sum}')
+					#Get current atom electon count (column 4)
+					currentElec=$(echo $i | awk '{sum += $4} {print sum}')
+					#add the current value to the running fragment NC
+					fragNC=$(perl -e "print $currentNC + $fragNC")
+					fragElec=$(perl -e "print $currentElec + $fragElec")
+				done
+
+				#calculate percentage of fragment's electron pop vs. total electron population
+				percPop=$(echo "scale=2; 100 / $totalElectrons * $fragElec" | bc -l)
+
+				#print calc output for current fragment
+				echo -e "\n${GREEN}Fragment NC = ${NC}$fragNC"
+				echo -e "${GREEN}Fragment Electrons = ${NC}$fragElec"
+				echo -e "${GREEN}%Total electron pop = ${NC}$percPop%\n"
+				
+				#reset fragment to empty
+				unset fragArray
+				continue;;
+			[Nn]* )
+				echo -e "${RED}EXITING...${NC}";
+                                exit;;
+                esac
+done
+
+
+
