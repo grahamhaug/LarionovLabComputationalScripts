@@ -1,4 +1,4 @@
-pLog is a general purpose script for processing G16 jobs. The target file is "yourjob.log" which should be in the same directory that you call "pLog" 
+pLog is a general purpose script for processing G16 jobs.  The target file is "yourjob.log" which should be in the same directory that you call "pLog" 
 
 ### Using pLog ###
 "pLog yourjob.log" 
