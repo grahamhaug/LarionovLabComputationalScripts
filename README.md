@@ -1,5 +1,5 @@
 # LarionovLabComputationalScripts
-Useful scripts for data processing/job management of Gaussian 16 input/output in a Linux environment.
+Useful scripts for data processing/job management of Gaussian 16 input/output in a Linux environment. All of these are bash scripts, but I plan on re-writing/conceiving some of these in python, soon. The eventual goal is autonomous job submission/management and minimal back-end user involvement in processing data.   
 
 ### pLog ###
 Creates general diagnostic file (DFA/Basis/Dispersion/Solvation/Charge/Multiplicity, thermodynamics, GoodVibes corrections, and time cost), SI file, and .xyz files from .logs
@@ -19,8 +19,3 @@ Allows for restart of large calculations, including frequency calculations, for 
 ### pNBO ###
 Conduct fragment-based natural population analysis (ex: metal/ligand electron population/ % of total electron population) on molecules from .nbo files 
 Useful for generation of NBO parametric data for multivariate analysis (ex: ligand populations across multiple structures)
-
-
-
-
-  
