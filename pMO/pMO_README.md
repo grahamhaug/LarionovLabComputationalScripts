@@ -13,7 +13,9 @@ alias pMO='/home1/YourHome/YourHome/scripts/pMO'
 
 4. use "chmod 755 pMO" to make pMO executable
 
-To use:
-call pMO on a log file in the current directory using:
+### To use: ###
+call pMO on a log file in the current directory using:  
+```
 "pMO example.log" 
-The script is then interactive so long as it finds (a completE) example.log and example.chk in the current directory.  
+```
+The script is then interactive so long as it finds (a complete) example.log and example.chk in the current directory.  
