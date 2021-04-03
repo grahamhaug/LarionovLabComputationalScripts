@@ -1,4 +1,5 @@
-pLog is a general purpose script for processing G16 jobs.  The target file is "yourjob.log" which should be in the same directory that you call "pLog" 
+pLog is a general purpose script for processing G16 jobs.  
+The target file is "yourjob.log" which should be in the same directory that you call "pLog" 
 
 ### Using pLog ###
 "pLog yourjob.log" 
@@ -19,7 +20,7 @@ If your job did not contain a frequency calculation, the values for "enthalpy" "
 #this is output produced by pDiag - general day-to-day job maintenance/info/verification. Also used to extract thermodynamic values from freq jobs for analysis
 #GoodVibes is called by default on freq jobs; pLog expects a working install of goodvibes (see Robert Paton's group website)
 
-#line-by-line pDiag/pTime output:
+#line-by-line pDiag/pTime output:  
 name of file
 functional/dispersion (current function doesn't read split basis sets, yet; will read "gen" for these cases)
 dispersion model
