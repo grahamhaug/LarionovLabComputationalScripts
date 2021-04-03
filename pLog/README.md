@@ -4,7 +4,7 @@ pLog is a general purpose script for processing G16 jobs. The target file is "yo
 "pLog yourjob.log" 
 
 ### Expected output ### 
-So long as your G16 job had no errors and completed, you should get three output files. ...
+So long as your G16 job had no errors and completed, you should get three output files...
 The contained information in each depends on the nature of your job.
 For a standard minimum optimization and frequency job, you will get 3 files:
 ```
