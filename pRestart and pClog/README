@@ -1,1 +1,35 @@
+### Description ###
+pRestart and pClog are intended to help with very long/expensive optimizations and, in particular, frequency calculations. 
 
+pRestart allows you to restart frequency jobs which get held up in the time-consuming "generating vectors" section. 
+Each iteration is numerically appended in a new .log, ex: "pRestart yourjob.log" will create and submit "yourjob2.log"
+
+pClog (CombineLogs) is written to append each of these subjob.log files into one cumulative yourjob-full.log file which can then be processed via pLog/etc. 
+
+Using these two in conjunction allows you to do two things:
+1. Reliably restart very long/frequency jobs
+2. Request less time for each job (ie: instead of requesting 12 hour skx jobs, you can request several 3 hours skx jobs and not be punished as much by skx queue waits) 
+
+### Caveats ###
+1. Using pRestart requires the use of a ReadWriteFile.rwf in your original calculation's route section, ie the line "%rwf":
+
+%nproc=64
+%mem=70gb
+%rwf=/work/example/directory/yourjob.rwf
+%NoSave
+%chk=/work/example/directory/yourjob.chk
+#p pw6b95d3/def2tzvp empiricaldispersion=gd3bj nosymm int=superfine opt=(tight) freq scrf=(solvent=acetonitrile,smd)
+
+In this instance %NoSave is added to ensure that the rwf is deleted upon successful job completion (these files are very large). 
+
+2. RWF's are very large and can take up a ton of disk space; appropriately deleting these upon either a) successful job completion (achieved via %NoSave) or
+manually deleting the .rwf's (where applicable) should be a priority
+
+3. pRestart can't handle every case - one (and I think the only) exception to its utility is in the case of TS "calcfc" calculations, wherein the "generating vectors" step
+occurs upfront. In these instances, I've had mixed success restarting jobs stuck in the "calcfc" phase. 
+
+### Use ###
+pRestart is called with "pRestart yourjob.log" 
+
+The script will determine if the requisite files necessary are present for a restart (yourjob.com, yourjob.rwf, yourjob.log) and report if anything is missing. 
+if yourjob+1.com already exists (which would be the next iteration created by pRestart), 
