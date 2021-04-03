@@ -21,21 +21,21 @@ If your job did not contain a frequency calculation, the values for "enthalpy" "
 GoodVibes is called by default on freq jobs; pLog expects a working install of goodvibes (see Robert Paton's group website)
 
 ## line-by-line pDiag/pTime output:  ##
-``
-name of file
-functional/dispersion (current function doesn't read split basis sets, yet; will read "gen" for these cases)
-dispersion model
-Solvation (solvent,model)
+```
+name of file  
+functional/dispersion (current function doesn't read split basis sets, yet; will read "gen" for these cases)  
+dispersion model  
+Solvation (solvent,model)  
 
-SP Energy (hartree)
-Enthalpy (hartree)
-Gibbs (hartree)
-GoodVibes-corrected Gibbs (cutoff of 50 cm-1) (hartree)
+SP Energy (hartree)  
+Enthalpy (hartree)  
+Gibbs (hartree)  
+GoodVibes-corrected Gibbs (cutoff of 50 cm-1) (hartree)  
 
-Charge/multiplicity
-*Either single point input geometry (denoted by line "Single point geometry") or the optimized geometry 
+Charge/multiplicity  
+*Either single point input geometry (denoted by line "Single point geometry") or the optimized geometry   
 
-Time output (real time for each job and then cumulative time for all jobs in the log) (this output from pTime)
+Time output (real time for each job and then cumulative time for all jobs in the log) (this output from pTime)  
 ```
 
 ### yourjob-si.txt ###
