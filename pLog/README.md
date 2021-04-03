@@ -2,7 +2,9 @@ pLog is a general purpose script for processing G16 jobs.
 The target file is "yourjob.log" which should be in the same directory that you call "pLog" 
 
 ### Using pLog ###
-"pLog yourjob.log" 
+```
+pLog yourjob.log
+```
 
 ### Expected output ### 
 So long as your G16 job had no errors and completed, you should get three output files.  
