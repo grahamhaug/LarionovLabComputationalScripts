@@ -1,9 +1,9 @@
 pMO is used to batch generate high resolution .cube files. These files can be used to render publication quality molecular orbital or spin density images for publication using VMD. 
 
-A video that describes the use of pMO and how to use VMD to render images:
+A video that describes the use of pMO and how to use VMD to render images:  
 https://www.youtube.com/watch?v=7yINELAtJr0
 
-To install:
+### To install: ###
 1. Place pMO script in your home/scripts/ directory
 
 2. Place pMO_SBATCH_template.txt in your home/scripts/ directory
