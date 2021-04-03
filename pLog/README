@@ -9,6 +9,7 @@ For a standard minimum optimization and frequency job, you will get 3 files:
 yourjob-out.txt
 yourjob-si.txt
 yourjob.xyz 
+If your job did not contain a frequency calculation, the values for "enthalpy" "gibbs" and "gv50" should be empty, as these values require a frequency calculation. 
 
 ### Details on output files ###
 ### yourjob-out.txt ###
