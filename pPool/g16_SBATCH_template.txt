@@ -1,6 +1,6 @@
 #!/bin/bash
 ### JOB PARAMETERS ###
-#SBATCH -N 1 -n 64 
+#SBATCH -N ${NUMCORE} -n ${NUMTASK} 
 #normal or skx queue
 #SBATCH -p ${WHICHQ}
 #requested time
