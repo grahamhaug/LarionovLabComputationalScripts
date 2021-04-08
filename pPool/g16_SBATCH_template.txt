@@ -1,0 +1,108 @@
+#!/bin/bash
+### JOB PARAMETERS ###
+#SBATCH -N ${NUMCORE} -n ${NUMTASK} 
+#normal or skx queue
+#SBATCH -p ${WHICHQ}
+#requested time
+#SBATCH -t ${HOURS}:${MINS}:00
+#I don't want these; too much clutter
+#SBATCH -e error.%j
+#SBATCH -o output.%j 
+
+#### AVAILABLE ALLOCATIONS ###
+#SBATCH -A ${ALLOCATION} 
+
+### POINT TO SCRIPTS DIRECTORY ###
+#source my aliuses/alii
+shopt -s expand_aliases
+#point to alias env file 
+source /home1/05793/rdg758/scripts/alii.env
+
+### SET jobPool DIRECTORY LOCATION ###
+#jobPool=/work/05793/rdg758/stampede2/larionovcompchem/jobPool
+
+### SET UP $SCRATCH DIRECTORY ###
+export job=$SLURM_JOB_NAME
+#see if dirctory exists in $SCRATCH
+jobExists=$(ls /scratch/05793/rdg758 | grep -c ${job})
+#debug
+#echo $jobExists
+if [[ "$jobExists" -ge 1 ]]; then
+	#store the name of the existing directory in $SCRATCH 
+	dirSuffix=$(ls /scratch/05793/rdg758 ${job} | grep ${job})
+	#tack the name of that directory onto a reference variable 	
+	existingDir="/scratch/05793/rdg758/$dirSuffix"
+	#confirm the name of the new target dir that the job will run in 
+	echo "job directory exists in SCRATCH: $existingDir"
+	echo "moving job files to $existingDir"
+	mv ${RETURNDIR}/${job}.com $existingDir/
+	mv ${RETURNDIR}/${job} $existingDir/
+#	mv ${RETURNDIR}/${job}.chk $jobExists/
+	cd $existingDir
+else
+	echo "No directory for $job located in \$SCRATCH"
+	echo "Creating new temp directory in \$SCRATCH for $job" 
+	tdir=$(mktemp -d $SCRATCH/${job}_$SLURM_JOBID-XXXX)
+	#if they exist, copy relevant input/maintenance files to $SCRATCH
+	mv $SLURM_SUBMIT_DIR/${job}.com $tdir/
+	#chkpoint file; cp if found
+	if [[ -f "$RETURNDIR"/"${job}.chk" ]]; then
+		echo "existing chk found in ${RETURNDIR}"
+		cp $SLURM_SUBMIT_DIR/${job}.chk $tdir/
+	else
+		echo "no .chk found in ${RETURNDIR}"
+	fi
+	#SBATCH script 
+	mv $SLURM_SUBMIT_DIR/${job} $tdir/
+	#check for existing .rwf; cp if true
+	if [[ -f "${job}.rwf" ]]; then
+        	mv $SLURM_SUBMIT_DIR/${job}.rwf $tdir/
+	fi
+	cd $tdir
+fi
+
+
+### RUN G16 JOB IN $SCRATCH ###
+module load gaussian
+echo "job started on $(date)"
+g16 <${job}.com> ${job}.log
+echo "job finished on $(date)"
+
+
+### CHECK FOR JOB COMPLETION; RUN pLOG IF TRUE###
+count=$(grep -c 'Normal termination' ${job}.log)
+if [[ "$count" -ge 1 ]]; then
+        pLog ${job}.log
+	#Remove job files from $jobPool dir
+fi
+
+### COPY FILES BACK TO $WORK/SUBMIT DIRECTORY ###
+cp $tdir/${job}.com ${RETURNDIR}
+cp $tdir/${job}.rwf ${RETURNDIR}
+cp $tdir/${job} ${RETURNDIR}
+
+#Backup existing .log(s) in submit directory if found
+if [[ -f "${RETURNDIR}"/"${job}.log" ]]; then
+        mv ${RETURNDIR}/${job}.log ${RETURNDIR}/${job}.log.bak
+        cp $tdir/${job}.log ${RETURNDIR}
+else
+        cp $tdir/${job}.log ${RETURNDIR}
+fi
+
+#for complete jobs, send back pLog output
+#*to do*
+#can do more nuanced diagnostics of job (ie: check for errors, im freq(s)/restart needed, etc)
+cp $tdir/${job}-out.txt ${RETURNDIR}
+cp $tdir/${job}-si.txt ${RETURNDIR}
+cp $tdir/${job}.xyz ${RETURNDIR}
+
+### CLEAN $tdir FROM $SCRATCH ###
+#check if $tdir is set
+if [[ -n "$tdir" ]] && [[ -d "$tdir" ]]; then
+        rm -rf "$tdir"
+fi
+
+### CLEAN junk files from jobPool ###
+cd $SLURM_SUBMIT_DIR
+#rm error.$SLURM_JOBID
+#rm output.$SLURM_JOBID	
