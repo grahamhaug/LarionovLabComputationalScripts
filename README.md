@@ -3,9 +3,9 @@ Useful scripts for data processing/job management of Gaussian 16 input/output in
 
 ### pASDI ###
 Automates the setup process for Activation Strain/Distortion Interaction analysis. Extracts geometries from an IRC.log file and creates .xyz files for:
-* FullInput.xyz (each iteration)
-* User-defined fragment1.xyz (each iteration)
-* User-defined fragment2.xyz (each iteration)  
+* FullInput.xyz (each iteration in irc)
+* User-defined fragment1.xyz (each iteration in irc)
+* User-defined fragment2.xyz (each iteration in irc)  
 
 User can then auto-create G16 input.coms from generated .xyzs using common DFT methods (can batch submit with pPool)
 
