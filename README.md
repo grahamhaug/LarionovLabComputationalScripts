@@ -6,6 +6,7 @@ Automates the setup process for Activation Strain/Distortion Interaction analysi
 * FullInput.xyz (each iteration)
 * User-defined fragment1.xyz (each iteration)
 * User-defined fragment2.xyz (each iteration)  
+
 User can then auto-create G16 input.coms from generated .xyzs using common DFT methods (can batch submit with pPool)
 
 ### pLog ###
