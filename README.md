@@ -1,6 +1,13 @@
 # LarionovLabComputationalScripts
 Useful scripts for data processing/job management of Gaussian 16 input/output in a Linux environment. All of these are bash scripts, but I plan on re-writing/conceiving some of these in python, soon. The eventual goal is autonomous job submission/management and minimal back-end user involvement in processing data.   
 
+### pASDI ###
+Automates the setup process for Activation Strain/Distortion Interaction analysis. Extracts geometries from an IRC.log file. Creates .xyz files for:
+FullInput.xyz (each iteration)
+User-defined fragment1.xyz (each iteration)
+User-defined fragment2.xyz (each iteration)
+User can then auto-create G16 input.coms from generated .xyzs using common DFT methods (can batch submit with pPool)
+
 ### pLog ###
 Creates general diagnostic file (DFA/Basis/Dispersion/Solvation/Charge/Multiplicity, thermodynamics, GoodVibes corrections, and time cost), SI file, and .xyz files from .logs
 
