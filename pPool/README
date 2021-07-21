@@ -3,6 +3,10 @@ pPool is used for batch generation of G16 SBATCH scripts based on a common templ
 It can create a single SBATCH script for one job:
 pPool example.com => option 1: "Single job"
 
+It can submit a range of jobs by common prefix:
+Job list: {job-example1-foo.com ... job-example99-foo.com}
+pPool > option 2 > "job-example*" will submit all: job-example{1..99}-foo.com. 
+
 Or can create multiple inputs at once:
 1. Make the requisite input.com files (ex: job-conformer1.com .. job-conformer20.com)
 2. Ensure all of the .com's are in the current working directory 
