@@ -1,0 +1,17 @@
+Installing python3.9.5 on Frontera
+1. move to home directory, upload the tar for python3.9.5
+2. untar with 'tar -xvf ...'
+3. make a local directory in /home to install python into (multiversion error prevention - ex: 'mkdir /home1/05793/rdg758/Python_3.9.5')
+4. use './configure --prefix=locationofyourdirectory' (ex: './configure --prefix=/home1/05793/rdg758/Python_3.9.5')
+5. run 'make'
+7. run 'make install' - check that /bin etc. are in your created directory
+
+Configuring python3.9.5 on frontera
+8. make a PATH variable for your new directory (the one you made- ex, in .bashrc: export PATH=/home1/05793/rdg758/Python_3.9.5/bin:$PATH)
+9 Need to make a symlink for python3.9.5 and pip so that when you type "python" in terminal you get python3.9.5 instead of the defualt 2.whatever
+	from within /bin, use 'ln -s python3.9 python' for python3 and 'ln -s pip3 pip' 
+	verify with 'll' => you should see something like 'python -> python3.9' and 'pip -> pip3'
+10. refresh terminal with 'bash' 
+11. test the python3 install using 'python -V' in the terminal - should see that python 3.9.5 is installed. 
+12. do the same for pip, using 'pip -V' - should see pip for (python 3.9). 
+
