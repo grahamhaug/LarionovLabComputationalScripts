@@ -1,0 +1,150 @@
+#!/bin/bash
+
+#pLog 
+#v1.0
+#GCH - 3/2/21
+#last edited: 11/11/2021
+
+### DESCRIPTION ###
+#This script will run pSI, pDiag and pXYZ on input.log files
+#Should also handle nested jobs - may need to do some bug testing
+#Note: my TACC and PSC installations of goodvibes and GoodVibes are distinct - note the caps - a variable below has to be changed 
+#to reflect the appropriate goodvibes/GoodVibes call
+
+### USAGE ###
+#To use, navigate to the directory where your .log file is located
+#type "pLog YourLog.log" and press enter. Your output should be one YourLog-si.txt file and one YourLog.XYZ. If a freq output was found, a YourLog-gv.txt as well.
+
+### POINT TO SCRIPTS DIRECTORY ###
+shopt -s expand_aliases
+#You will need to point this as where your scripts are
+source /home1/05793/rdg758/scripts/alii.env
+
+### COLORS FOR FORMATTING ###
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+PURP='\033[1;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+### PRINT JOB HEADER ###
+echo ""
+echo "-----------------------------------------------------------------"
+echo "                              pLog                               "
+echo "-----------------------------------------------------------------"
+
+### JOB NAMES ###
+#get the name of the original filename.log you are running progSI on, regardless of extension
+fullInput=$(basename "$1")
+jobName="${fullInput%.*}"
+
+### BACKUP, IF -SI EXISTS ###
+#Check if there is already a Master-si.txt file for your targeted filename.log; back original up if extant
+if [ -f "./${jobName}-out.txt" ]; then
+        mv ./${jobName}-si.txt ./${jobName}-out.txt.bak
+fi
+
+### CREATE TEMP DIRECTORY ###        
+#make a directory to house the temp files-the chunked SmallerX.log files - if it doesn't exist
+if [ ! -d "./tempstorage" ]; then
+        mkdir ./tempstorage
+fi
+
+### DETERMINE THE NUMBER OF JOBS CONTAINED IN JOBNAME.LOG ###
+# All jobs end the same way: "Normal termination" - For 1 opt/freq this program would count 1 start but 2 stops. For a SP it would count 1 start and 1 stop.
+startJobs=$(awk '/Initial command:/ {print FNR}' ${jobName}.log | tr '\n\r' ' ')
+IFS=' ' read -r -a startArray <<< "$startJobs"
+endJobs=$(awk '/Normal termination/ {print FNR}' ${jobName}.log | tr '\n\r' ' ') 
+IFS=' ' read -r -a endArray <<< "$endJobs"
+# Ratio of starts/stops determines how many jobs there are total
+startCount="${#startArray[@]}"
+endCount="${#endArray[@]]}"
+
+#Give the user some feedback
+echo ""
+echo -e "${CYAN}Reading job data in ${GREEN}${jobName}.log${CYAN}...${NC}"
+
+if [ "$startCount" -eq 1 ] && [ "$endCount" -eq 1 ]; then
+	echo -e "${jobName}.log ${CYAN}contains one single point job.${NC}" 
+	echo ""
+	for (( i=0; i<$startCount; i++ ))
+		do
+			startVar=${startArray[i]}
+			endVar=${endArray[i]}
+			sed -n "${startVar}, ${endVar}p" ${jobName}.log > ./tempstorage/${jobName}${i}.log
+		done
+#there may be paired start/stops (equal #) but there may be more than 1 (multiple sequential single points)
+elif [ "$startCount" -gt 1 ] && [ "$endCount" -eq "$startCount" ]; then
+        echo -e "${jobName}.log ${CYAN}contains multiple single point jobs.${NC}"
+	echo ""
+	for (( i=0; i<$startCount; i++ ))
+        do
+                startVar=${startArray[i]}
+                endVar=${endArray[i]}
+                sed -n "${startVar}, ${endVar}p" ${jobName}.log > ./tempstorage/${jobName}${i}.log
+		done
+#there may be 2x the ends as there are beginnings - this is in the case of multiple opt/freqs where each job contains 2 ends but only 1 'initial command: start'
+else
+	#Check if Ends contains twice the number as Start - link1 multijob inputs 
+	j=1
+	echo -e "${jobName}.log ${CYAN}contains multiple subjobs.${NC}"
+	echo ""
+	for (( i=0; i<$startCount; i++ ))
+		do
+			startVar=${startArray[i]}
+			endVar=${endArray[j]}
+			sed -n "${startVar}, ${endVar}p" ${jobName}.log > ./tempstorage/${jobName}${i}.log
+			(( j+=2 ))
+		done	 
+fi 
+
+#count the number of .log files in tempdirectory
+numFiles=(./tempstorage/*)
+
+### IF MULTIPLE SUBJOBS, PROCESS EACH SUBJOB ###
+if [ ${#numFiles[@]} -gt 1 ]; then
+	for subJob in ./tempstorage/*.log
+		do
+			### RUN pXYZ IF OPTIMIZED GEOMETRY IS FOUND ###
+			existCoord=$(grep "Redundant internal" $subJob)   
+			if [ -n "$existCoord" ]; then 
+				pDiag $subJob >> ./${jobName}-out.txt
+				pXYZ $subJob > ./${jobName}-${i}.xyz
+				pTime $subJob >> ./${jobName}-out.txt
+			else 
+				pDiag $subJob >> ./${jobName}-out.txt
+				pTime $subJob >> ./${jobName}-out.txt
+				printf "\n***Job End***\n\n" >> ./${jobName}-out.txt
+			fi
+						
+			### DIVIDE JOB OUTPUTS WITH A FOOTER ###
+ 			printf "\n***Job End***\n\n" >> ./${jobName}-out.txt
+			
+			unset existCoord
+        done
+		
+### IF ONE SUBJOB, PROCESS THE SUBJOB ###
+else
+	for subJob in ./tempstorage/*.log
+		do
+			pSI $subJob > ./${jobName}-si.txt
+			pDiag $subJob > ./${jobName}-out.txt
+			pXYZ $subJob > ./${jobName}.xyz
+			pTime $subJob >> ./${jobName}-out.txt
+		done
+fi
+
+#yeet the tempstorage directory into oblivion after we are done
+rm -rf tempstorage
+
+echo -e "${GREEN}		-- Done! --${NC}"
+
+
+
+
+
+
+
+
+
+

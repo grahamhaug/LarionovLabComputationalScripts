@@ -1,0 +1,174 @@
+#!/bin/bash
+### JOB PARAMETERS ###
+#SBATCH -N 1 -n 56 
+#small or normal queue
+#SBATCH -p ${WHICHQ}
+#requested time
+#SBATCH -t ${HOURS}:${MINS}:00
+#I don't want these; too much clutter
+#SBATCH -e error.%j
+#SBATCH -o output.%j 
+
+#### AVAILABLE ALLOCATIONS ###
+#SBATCH -A CHE21009 
+
+### POINT TO SCRIPTS DIRECTORY ###
+#source my aliuses/alii
+shopt -s expand_aliases
+#point to alias env file 
+source /home1/05793/rdg758/scripts/alii.env
+ 
+### SET jobPool DIRECTORY LOCATION ###
+jobPool=/work/05793/rdg758/frontera/jobPool
+
+### SET UP $SCRATCH DIRECTORY ###
+export job=$SLURM_JOB_NAME
+
+#see if a temp dirctory exists in $SCRATCH
+jobExists=$(ls /scratch1/05793/rdg758 | grep -wc ${job}_)
+
+#if directory exists, will use that directory and the files in it - will overwrite the existing .com/sbatch in it 
+if [[ "$jobExists" -ge 1 ]]; then
+	#capture the name of the existing directory in $SCRATCH 
+	dirSuffix=$(ls /scratch1/05793/rdg758 | grep ${job} | grep -v grep)
+
+	#tack the name of that directory onto a reference variable 	
+	existingDir="/scratch1/05793/rdg758/${dirSuffix}"
+
+	#for debug - written into output.x 
+	#confirm the name of the new target dir that the job will run in 
+	echo "Job directory exists in SCRATCH: $existingDir"
+	echo "moving new job files to $existingDir"
+
+	#move the newest input.com and sbatch from $jobPool
+	#don't want the job files to stay in $jobPool once job started)
+	mv $jobPool/${job}.com $existingDir
+	mv $jobPool/${job} $existingDir
+
+	#debug
+	echo "${job}.com and ${job} sbatch moved to: $existingDir" 
+
+	#move into the existing directory 
+	cd $existingDir
+
+else
+	#debug - confirm that new directory is being made
+	echo "No directory for $job located in \$SCRATCH"
+	echo "Creating new temp directory in \$SCRATCH for $job"
+
+	#make a new temp directory in scratch 
+	newDir=$(mktemp -d $SCRATCH/${job}_$SLURM_JOBID-XXXX)
+
+        #move the input.com and sbatch files from $jobPool
+	#(don't want them to stay in $jobPool once the job has started)
+        mv $jobPool/${job}.com $newDir
+        mv $jobPool/${job} $newDir
+
+	#debug - confirm input moved from $jobPool
+        echo "${job}.com and ${job} sbatch moved to: $newDir"
+
+	#move into the new temp directory
+	cd $newDir
+fi
+
+
+### RUN G16 JOB IN $SCRATCH ###
+module load gaussian
+echo "${job} started on $(date)"
+g16 <${job}.com> ${job}.log
+echo "${job} finished on $(date)"
+
+
+### CHECK FOR JOB COMPLETION; RUN pLOG IF TRUE###
+count=$(grep -c 'Normal termination' ${job}.log)
+if [[ "$count" -ge 1 ]]; then
+	#if complete, run pLog (generating -si.txt, -out.txt, .xyz) 
+        pLog ${job}.log
+	
+	#copy the job files back to the return directory
+	
+	#check if $newDir is set
+	if [[ -n "$newDir" ]] && [[ -d "$newDir" ]]; then
+		### COPY FILES BACK TO $RETURN DIRECTORY ###
+		cp $newDir/${job}.com ${RETURNDIR}
+#		cp $newDir/${job}.chk ${RETURNDIR}
+		cp $newDir/${job} ${RETURNDIR}
+
+		#check first if a $job.log exists in returnDir
+		if [[ -f "${RETURNDIR}"/"${job}.log" ]]; then
+		        mv ${RETURNDIR}/${job}.log ${RETURNDIR}/${job}.log.bak
+        		cp $newDir/${job}.log ${RETURNDIR}
+		else
+        		cp $newDir/${job}.log ${RETURNDIR}
+		fi
+
+		#pLog output files 
+		cp $newDir/${job}-out.txt ${RETURNDIR}
+		cp $newDir/${job}-si.txt ${RETURNDIR}
+		cp $newDir/${job}.xyz ${RETURNDIR}
+		
+		#For NBO jobs, check if nbo.47 archive is present
+		#if [[ -f "$newDir/${*.47}" ]]; then
+		#	cp "$newDir/${*.47}" ${RETURNDIR}/${*.47}
+		#fi 
+
+		#for WFN jobs (NCI plots), copy the .wfn file back
+                #if [[ -f "$newDir/${job}.wfn" ]]; then
+                #        cp "$newDir/${job}.wfn" ${RETURNDIR}/${job}.wfn
+                #fi
+
+		#if job completes the .rwf should be deleted by %NoSave in .com to save space		
+		#cp $newDir/${job}.rwf ${RETURNDIR}
+
+		#debug - stored in output.x		
+		echo "Output files for ${job} sent to: ${RETURNDIR}"
+		
+		#remove the temp folder from $SCRATCH
+		rm -r $newDir
+		echo "removing $newDir"
+
+	elif [[ -n "$existingDir" ]] && [[ -d "$existingDir" ]]; then
+		### COPY FILES BACK TO $RETURN DIRECTORY ###
+                cp $existingDir/${job}.com ${RETURNDIR}
+ #               cp $existingDir/${job}.chk ${RETURNDIR}
+                cp $existingDir/${job} ${RETURNDIR}
+
+                #check first if a $job.log exists in returnDir
+                if [[ -f "${RETURNDIR}"/"${job}.log" ]]; then
+                        mv ${RETURNDIR}/${job}.log ${RETURNDIR}/${job}.log.bak
+                        cp $existingDir/${job}.log ${RETURNDIR}
+                else
+                        cp $existingDir/${job}.log ${RETURNDIR}
+                fi
+
+                #pLog output files
+                cp $existingDir/${job}-out.txt ${RETURNDIR}
+                cp $existingDir/${job}-si.txt ${RETURNDIR}
+                cp $existingDir/${job}.xyz ${RETURNDIR}
+
+                #For NBO jobs, check if nbo.47 archive is present
+                #if [[ -f "$newDir/${*.47}" ]]; then
+                #        cp "$newDir/${*.47}" ${RETURNDIR}/${*.47}
+                #fi
+
+                #for WFN jobs (NCI plots), copy the .wfn file back
+                #if [[ -f "$newDir/${job}.wfn" ]]; then
+                #        cp $newDir/${job}.wfn ${RETURNDIR}/${job}.wfn
+                #fi
+
+                #if job completes the .rwf should be deleted by %NoSave in .com to save space
+                #cp $newDir/${job}.rwf ${RETURNDIR}
+
+                #debug - stored in output.x
+                echo "Output files for ${job} sent to: ${RETURNDIR}"
+
+                #remove the temp folder from $SCRATCH
+                rm -r $existingDir 
+		echo "removing $existingDir"
+	fi
+fi
+
+### CLEAN junk files from jobPool ###
+cd $SLURM_SUBMIT_DIR
+#rm error.$SLURM_JOBID
+#rm output.$SLURM_JOBID	
