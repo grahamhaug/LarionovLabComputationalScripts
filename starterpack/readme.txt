@@ -4,6 +4,8 @@
   a. untar python-3.9.5.tgz: "tar -xvf python-3.9.5.tgz"
   b. make a local directory in your $HOME to store the new version of python in (TACC uses an older version; this install will supercede): 
       ex: 'mkdir /home1/yourpath/Python_3.9.5'
+      move into the untarred directory (not the one you just made)
+      
   c. use './configure --prefix=PathToYourCreatedDirectory' ex: './configure --prefix=home1/05793/rdg758/Python_3.9.5'
   d. 'make' 
   e. 'make install' 
