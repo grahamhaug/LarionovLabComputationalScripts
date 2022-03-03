@@ -99,11 +99,6 @@ for input_file in input_files:
 				#capture line to the capturing list
 				stepX_xyz.append(line.strip().split())
 
-
-		
-	#trim one value off of fs list - I don't remember if this is used, anymore
-	#chopped_fs = steps_fs.pop()
-
 	#grab the atom names for graph
 	atom1Name = stepwise_list[0][atom1 - 1][0]
 	#print(atom1Name)
