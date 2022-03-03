@@ -43,12 +43,6 @@ axes = plt.figure(figsize=(24, 12), constrained_layout=True).subplot_mosaic(
                 [['topTraces', 'topTraces'], # Note repitition of 'bar'
                  ['leftEnergy', 'rightDistance']], gridspec_kw=gs_kw)
 
-#TO DO
-#DONE - prompt user for an output filename for the image produced/saved in LD
-#DONE - check that these values are ints / prompt for error if not
-#for each index provided by user, get the corresponding atom type from
-#the coordinates - store that atomType + atomNum as var for printing to axes below
-
 #grab data for each Milo input file in the current directory
 for input_file in input_files:
 	#don't need this at the moment, it's for writing to specific output text files
