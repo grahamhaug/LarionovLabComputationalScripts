@@ -14,11 +14,6 @@ import os
 #I think these two latter plots could be refined in a future version to extract
 #some meaningful information
 
-###Asks user for 2 inputs:
-# Atom#1 and Atom#2 - these are the atoms BD is measured between
-# Name out the output image - user specifies filename and a .png 
-# is created with the 3 plots
-
 #ask user for an output name - will create example.png in local dir. 
 outputName = input("\nEnter desired filename for output image: ")
 
