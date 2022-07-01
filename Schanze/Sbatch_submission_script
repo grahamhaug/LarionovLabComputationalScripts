@@ -1,0 +1,23 @@
+#!/bin/bash
+#SBATCH -J JOB # Job Name
+#SBATCH -o output.%j # Output file name (%j expands to jobID)
+#SBATCH -e error.%j # Error file name (%j expands to jobid)
+#SBATCH -N 1 -n 48 # Gaussian only uses one node
+#SBATCH -p normal # Queue name -- normal, development, etc.
+#SBATCH -t 01:00:00 # Run time (hh:mm:ss) - 1.5 hours
+##SBATCH -A project_account_name  # You can remove this line if you only have one allocation
+
+# make sure we have the module loaded:
+module load gaussian
+module list
+
+# timestamps are helpful
+echo "job started on $(date)"
+
+# now run Gaussian:
+g16 <JOB.com> JOB.log
+
+echo "job finished on $(date)"
+
+#You will need to change the "JOB" text to your job using this command:
+#:%s/JOB/yourjob/g
