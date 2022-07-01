@@ -1,0 +1,10 @@
+There is a simple test job with a basic/bare bones SBATCH script in the RunThisJobFirst folder. 
+
+1. Upload both files (using WINSCP) to a test folder in your work directory ("cdw" and then "mkdir yourfolder" to make the directory)
+2. Run the testjob using "sbatch testjob"
+3. Check that your job is running with "squeue -U yourusername"
+4. A log file called "testjob.log" will be output to the current directory if the job completed
+5. You can open the log file using ChemCraft
+6. Refer to the ProgSI script in the book chapters I sent on how to extract thermodynamic info from the job
+
+
