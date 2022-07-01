@@ -7,4 +7,5 @@ There is a simple test job with a basic/bare bones SBATCH script in the RunThisJ
 5. You can open the log file using ChemCraft
 6. Refer to the ProgSI script in the book chapters I sent on how to extract thermodynamic info from the job
 
-
+Run some test jobs and get a feel for how to submit/download jobs. If all you want is HOMO/LUMO data/energies, that's no problem.
+If you want to get publication quality thermodynamic values, that will require additional work/processing. 
