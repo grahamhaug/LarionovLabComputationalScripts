@@ -284,7 +284,7 @@ function whichSolvation {
 								echo -e "${GREEN}Model which solvent with SMD:${NC}"
 								solventID=$(echo -e "${CYAN}Select a solvent:   ${NC}")
 								#can add more solvents here as needed
-								solvOptions=("Water" "MeCN" "DCM" "DMF" "THF" "DMAc")
+								solvOptions=("Water" "MeCN" "DCM" "DMF" "THF" "DMAc" "TFE")
 								PS3=$solventID
 								COLUMNS=0
 								select solvID in "${solvOptions[@]}"; do
@@ -323,6 +323,13 @@ function whichSolvation {
                                                                                         echo -e "${GREEN}Using solvation: ${CYAN}SMD(DMAc)${NC}"
                                                                                         export solv='-smd'
                                                                                         break;;
+											
+										7) #2,2,2-trifluoroethanol
+											export SOLVATION='scrf=(solvent=2,2,2-trifluoroethanol,smd)'
+                                                                                        echo -e "${GREEN}Using solvation: ${CYAN}SMD(TFE)${NC}"
+                                                                                        export solv='-smd'
+                                                                                        break;;
+										
 											
 										*) #error case
 											echo -e "${RED}Choose from one of the listed solvents...\n${NC}"
@@ -396,8 +403,8 @@ chamult=$(sed -n '2 p' $inputName)
 #get the geom lines
 geomBlock=$(awk '$1 ~ /[A-Z]/ {printf "%-2s  %15s % 15s %15s\n", $1, $2, $3, $4}' $inputName)
 #stick them together
-geom=$(printf "${chamult}\n${geomBlock}\n")
-printf "$geom\n"
+geom=$(printf -- "${chamult}\n${geomBlock}\n")
+printf -- "$geom\n"
 }
 
 function whichQ {
