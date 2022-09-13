@@ -17,12 +17,10 @@ Bash scripts for working on TACC's Frontera
 
 ### Editing pPool  
 - pPool needs to be edited in several ways. First, you need a location on Frontera that will act as a temporary folder to hold jobs before submission. This is the "jobPool" directory - you need to 'mkdir' this directory somewhere. You can put it wherever you want in your /work directory:  
-![image](https://user-images.githubusercontent.com/49004818/189989642-b55376cb-bd82-4537-bc8f-994645794fad.png)   
-- Next, you need to specify the location of the g16_SBATCH_template.txt file that pPool will use to make job inputs (this should be your own /scripts dir):  
-![image](https://user-images.githubusercontent.com/49004818/189981938-e93e63d8-ec1a-4e5e-bbda-87e0a91cfec8.png)  
-- Edit the other line to specify where your alii.env file is (should also be in your /scripts dir):  
-![image](https://user-images.githubusercontent.com/49004818/189982069-f1ca6c28-6f52-44a7-beae-a0bf8f71e44b.png)  
-- Down 
+ ![image](https://user-images.githubusercontent.com/49004818/189989742-86eeaae5-48f1-4518-af89-0e3ce2116259.png)  
+- Next, you need to specify the location of the /scripts directory:  
+![image](https://user-images.githubusercontent.com/49004818/189989813-9686a455-d5c0-4a77-b37e-2e9d05433026.png)
+
 
 
 
