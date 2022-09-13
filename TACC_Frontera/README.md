@@ -1,9 +1,10 @@
-Scripts for working on TACC's Frontera  
+Bash scripts for working on TACC's Frontera  
 
 ### alii.env  
 - Defines env variables for each of the scripts so that they can be called by one another
 - Edit it to reflect your local environment (point it at your 'home/whatever/scripts' directory)  
 - Save the file in your /scripts directory  
+
 
 ### Place pLog, pSI, pDiag, pXYZ, pTime, and pPool into your /scripts directory  
 - use 'chmod 755 pLog' and etc. to make each script executable (do this from /scripts directory)
