@@ -1,4 +1,4 @@
-Bash scripts for working on TACC's Frontera  
+Bash scripts for working on TACC's Frontera HPC  
 
 ### Setup Instructions:
 
