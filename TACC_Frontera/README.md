@@ -2,6 +2,17 @@ Bash scripts for working on TACC's Frontera
 
 ### Setup Instructions:
 
+### File placement  
+Put all of the following files into a /scripts directory in your /home directory:  
+- alii.env   *Contains env variables for the scripts to cooperate with one another*
+- pPool   *Interactively makes SBATCH input files for one/multiple jobs and submits the jobs*
+- pLog   *Processes output if your job completes*
+- pDiag   *Makes a your_job-out.txt file containing job info/thermodynamics/geometry/time to complete info*
+- pTime   *Calculates how much time your job(s) required*
+- pXYZ   *Outputs a correctly formatted .xyz of your job's optimized geometry*
+- pSI   *Outputs a formatted file for placement into a SI file*  
+
+
 ### alii.env  
 - Defines env variables for each of the scripts so that they can be called by one another
 - Edit it to reflect your local environment (point it at your 'home/whatever/scripts' directory)  
