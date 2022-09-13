@@ -26,7 +26,7 @@ Put all of the following files into a /scripts directory in your /home directory
 - use 'cdh' to move to your /home directory
 - type 'vi .bashrc' to open your .bashrc file (be careful with this file)
 - scroll down to Section 3:  
-- ![image](https://user-images.githubusercontent.com/49004818/189991651-ba8cf079-06d1-4094-a0aa-13efff5bc5f2.png)
+![image](https://user-images.githubusercontent.com/49004818/189991651-ba8cf079-06d1-4094-a0aa-13efff5bc5f2.png)
 - in your bash.rc, add aliases for each of the scripts (refer to picture below):  
 ![image](https://user-images.githubusercontent.com/49004818/189980680-a39a7978-58f5-4d42-9376-e82f8b518a68.png)  
 
