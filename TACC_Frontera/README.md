@@ -38,7 +38,16 @@ Put all of the following files into a /scripts directory in your /home directory
 - pPool needs to be edited in several ways. First, you need a location on Frontera that will act as a temporary folder to hold jobs before submission. This is the "jobPool" directory - you need to 'mkdir' this directory somewhere. You can put it wherever you want in your /work directory:  
  ![image](https://user-images.githubusercontent.com/49004818/189989742-86eeaae5-48f1-4518-af89-0e3ce2116259.png)  
 - Next, you need to specify the location of the /scripts directory:  
-![image](https://user-images.githubusercontent.com/49004818/189989813-9686a455-d5c0-4a77-b37e-2e9d05433026.png)
+![image](https://user-images.githubusercontent.com/49004818/189989813-9686a455-d5c0-4a77-b37e-2e9d05433026.png)  
+
+### Editing the SLURM template
+The file g16_SBATCH_template.txt is used as a template for SLURM job submission scripts. You need to edit this file to reflect your own account.  
+- First, specify the locations of your alii.env file and your /jobPool directory (same one used by pPool):  
+![image](https://user-images.githubusercontent.com/49004818/190917553-1a03a322-aafe-4bd3-ae24-fdff7881d5a1.png)  
+- Next, you need to specify the location of your /scratch directory in the following (highlighted) lines:  
+![image](https://user-images.githubusercontent.com/49004818/190917619-56b4cbdb-1d78-4300-a14d-ce3734625c37.png)
+
+
 
 
 
