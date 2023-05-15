@@ -1,0 +1,41 @@
+#!/bin/bash
+
+### COLORS FOR FUN FORMATTING ###
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+PURP='\033[1;35m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+#locate all the -out.txt processed files in the local directory
+files=$(ls *out.txt)
+
+
+#ask whether output in forward/reverse order
+echo -e "\n${GREEN}How should the output be ordered?${NC}"
+orderQ=$(echo -e "${CYAN}Forward or Reverse?    ${NC}")
+orderOptions=("Front half IRC - reverse the order" "Back half IRC - ascending order")
+PS3=$orderQ
+COLUMS=0
+select orderCase in "${orderOptions[@]}"; do
+	case $REPLY in 
+		1) #Forward
+			#front half of IRC should be reversed order (end of IRC is closest to reactants)
+			grep 'E(.*)' $files | sort -r --version-sort > pasproc-reverse.txt
+			echo -e "${GREEN}Front half of IRC sent to: ${PURP}pasproc-reverse.txt${NC}"
+			break;;
+		2) #Reverse
+			#back half of IRC in ascending order (TSS to products)
+			grep 'E(.*)' $files | sort --version-sort > pasproc-forward.txt
+			echo -e "${GREEN}Back half of IRC sent to: ${PURP}pasproc-forward.txt${NC}"
+			break;;
+		*) #errors
+			echo -e "${RED}Error: ${NC} select one of the above options...\n"
+			continue;;
+	esac
+done
+
+			
+
+
+
